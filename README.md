@@ -6,7 +6,7 @@
 
 ## ✅ Objetivos do projeto:
 
-Desenvolver uma aplicação em C que analisa logs de servidor. O ponto principal é que: haverá dois tipos de scripts, um que paraleliza em threads esta leitura e outro que lê de forma sequencial e, ao final, compara o tempo entre elas.
+Desenvolver uma aplicação em C que analisa logs de sensores conectados em uma rede IoT. O ponto principal é que: haverá dois tipos de scripts, um que paraleliza em threads esta leitura, controlado via Mutex e outro que lê de forma sequencial e, ao final, será comparado o tempo entre elas.
 
 ## ⚙️ Como rodar:
 
@@ -18,4 +18,4 @@ make
 ```
 
 ## 📝 Para compreender melhor o projeto:
- - Abra o arquivo "Projeto Comp Paralela.pdf" para mais detalhes sobre o projeto e sua estrutura.
+ - Leia o arquivo "AnalisarLogs_IoT.pdf" para mais detalhes sobre o projeto e sua estrutura.
