@@ -1,12 +1,13 @@
 /*
 Pelo que pesquisei, serve para permitir o uso de mais funcionalidades que não fazem parte da biblioteca
-padrão do C, tive que colocar para o CLOCL_MONOTONIC ser definido.
+padrão do C, tive que colocar para o CLOCK_MONOTONIC ser definido.
 */
 #define _POSIX_C_SOURCE 199309L 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 
 #define MAX_SENSORES 1000
 
@@ -28,7 +29,7 @@ void extrair_valores(FILE *file, void* sensores) {
     char linha[90]; // Vetor para armazenar a linha que será analisada
     Sensores* array = (Sensores*)sensores; // Array de sensores com acesso por id
 
-    // 
+    // While que passará por TODAS as linhas do arquivo e coletará os dados necessários
     while (fgets(linha, sizeof(linha), file)) {
         // Informações necessárias na coleta:
         int id;
@@ -51,7 +52,11 @@ void extrair_valores(FILE *file, void* sensores) {
             (qnt_alertas) += 1;
         }
 
-        consumo_total += valor;
+        // Usando string compare para ver se o tipo é energia para somar ao consumo total
+        if (strcmp(tipo, "energia") == 0) {
+            consumo_total += valor;
+        }
+
     }
 }
  // Função que vai calcular o desvio padrão de um sensor usando soma e soma dos quadrados
@@ -69,42 +74,44 @@ int main() {
         return 1;
     }
 
-    Sensores* s = (Sensores*)malloc(MAX_SENSORES * sizeof(Sensores*));
+    // Uso de calloc para inicializar array sem lixo de memória (usando malloc calculava errado o desvio padrão)
+    Sensores* s = (Sensores*)calloc(MAX_SENSORES, sizeof(Sensores));
 
     extrair_valores(file, s);
 
-    fclose(file);
-
-    clock_gettime(CLOCK_MONOTONIC, &fim);
-
-        // Encontrar o sensor mais instável procurando qual tem o maior desvio padrão
-    int sensor_instavel = 0;
+    // Encontrar o sensor mais instável procurando qual tem o maior desvio padrão
+    Sensores* sensor_instavel = NULL;
     double maior_desvio = 0.0;
     for (int i = 0; i < MAX_SENSORES; i++) {
         if (s[i].qnt > 0) {
             double desvio = calcula_desvio_padrao(&s[i]);
+
             if (desvio > maior_desvio) {
                 maior_desvio = desvio;
-                sensor_instavel = i;
+                sensor_instavel = &s[i];
             }
         }
     }
+
+    fclose(file);
+
+    clock_gettime(CLOCK_MONOTONIC, &fim);
  
     printf("\n--- Média de Temperatura por Sensor (Primeiros 10) ---\n");   // Exibe a Média de Temperatura por Sensor (Primeiros 10 como pedido)
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i <= 10; i++) {
         if (s[i].qnt > 0) {
-            printf("Sensor %03d: Média = %.2f\n", s[i].id, s[i].soma / s[i].qnt);
+            printf("Sensor_%03d: Média = %.2f\n", s[i].id, s[i].soma / s[i].qnt);
         }
     }
     
-    printf("\nSensor mais instável: sensor_%03d (Desvio Padrão: %.2f)\n", sensor_instavel, maior_desvio); // Exibe o sensor mais instável ( com o nome e desvio padrão)
+    printf("\nSensor mais instável: sensor_%03d (Desvio Padrão: %.2f)\n", sensor_instavel->id, maior_desvio); // Exibe o sensor mais instável ( com o nome e desvio padrão)
     
     printf("Total de alertas: %.0f\n", qnt_alertas); // Exibe o total de alertas no log
     
     printf("Consumo total de energia: %.2f\n", consumo_total); // Exibe consumo total de energia gasta
 
     double tempo = (fim.tv_sec - inicio.tv_sec) + (fim.tv_nsec - inicio.tv_nsec) / 1e9;
-    printf("Tempo: %f segundos", tempo); //Exibe o tempo que foi necessário para concluir
+    printf("Tempo: %f segundos\n", tempo); //Exibe o tempo que foi necessário para concluir
 
     free(s); // Liberar ponteiro de structs
 

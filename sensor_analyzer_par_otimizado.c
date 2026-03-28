@@ -17,6 +17,7 @@ O QUE PRECISA DE MUTEX (POR SER COMPARTILHADO):
 - Sensores* s;
 - double consumo_total;
 - double qnt_alertas;
+- FILE* file;
 */
 
 // Struct para calculo de tempo e informações de sensores que deverão ser exibidas e para separar threads
