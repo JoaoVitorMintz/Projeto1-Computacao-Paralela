@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
     
     printf("Total de alertas: %.0f\n", qnt_alertas); // Exibe o total de alertas no log
     
-    printf("Consumo total de energia: %.2f\n", consumo_total); // Exibe consumo total de energia gasta
+    printf("Consumo total de energia: %.2fWh\n", consumo_total); // Exibe consumo total de energia gasta
 
     double tempo = (fim.tv_sec - inicio.tv_sec) + (fim.tv_nsec - inicio.tv_nsec) / 1e9;
     printf("Tempo: %f segundos\n", tempo); //Exibe o tempo que foi necessário para concluir
